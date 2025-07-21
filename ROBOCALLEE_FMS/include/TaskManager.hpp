@@ -16,6 +16,7 @@ namespace Task
         std::weak_ptr<FMS::Core>   Core_;
         Log::Logger::s_ptr          log_;
 
+        std::mutex                  Dispatcherlock_;
         std::thread                 DispatcherThread_;
         bool                        isRunning_;
 

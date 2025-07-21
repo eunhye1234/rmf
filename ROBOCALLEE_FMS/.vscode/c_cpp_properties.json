@@ -6,6 +6,7 @@
                 "${workspaceFolder}/**",
                 "${workspaceFolder}/include",
                 "${workspaceFolder}/Utile"
+                "${workspaceFolder}/lib/opencv/include"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/gcc",
