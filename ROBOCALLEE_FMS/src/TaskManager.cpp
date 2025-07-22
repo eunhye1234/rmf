@@ -4,7 +4,7 @@
 using namespace std;
 using namespace Task;
 
-Task::TaskManager::TaskManager(std::weak_ptr<FMS::Core> Core, Log::Logger::s_ptr Log)
+Task::TaskManager::TaskManager(std::weak_ptr<FMS::Core> Core,Log::Logger::s_ptr Log)
     :Core_(Core), log_(Log), isRunning_(true)
 {
     DispatcherThread_ = thread(&TaskManager::DispatcherThread,this);
@@ -29,6 +29,11 @@ void Task::TaskManager::DispatcherThread()
     while(isRunning_)
     {
         std::lock_guard lock(Dispatcherlock_);
+
+        if(auto p = Core_.lock())
+        {
+            p->GetpAmrAdapter(0)->SetSate(10)
+        }
     }
 
     log_->Log(Log::LogLevel::INFO,"TaskManager Thread 종료");
