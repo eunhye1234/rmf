@@ -1,0 +1,22 @@
+{
+    "configurations": [
+        {
+            "name": "Linux",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "${workspaceFolder}/Core/include",
+                "${workspaceFolder}/Adapters/include",
+                "${workspaceFolder}/Request/include",
+                "${workspaceFolder}/Task/include",
+                "${workspaceFolder}/Traffic/include",
+                "${workspaceFolder}/Utile/Logger/include"
+            ],
+            "defines": [],
+            "compilerPath": "/usr/bin/gcc",
+            "cStandard": "c17",
+            "cppStandard": "gnu++17",
+            "intelliSenseMode": "linux-gcc-x64"
+        }
+    ],
+    "version": 4
+}
