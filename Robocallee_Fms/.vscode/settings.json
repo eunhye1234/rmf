@@ -79,7 +79,8 @@
         "future": "cpp",
         "shared_mutex": "cpp",
         "valarray": "cpp",
-        "stdfloat": "cpp"
+        "stdfloat": "cpp",
+        "*.txx": "cpp"
     },
     "cmake.sourceDirectory": "/home/addinedu/workspace/RoboCallee/Robocallee_Fms"
 }

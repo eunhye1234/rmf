@@ -3,6 +3,8 @@
 #include "Integrated.hpp"
 #include <thread>
 
+using namespace Integrated;
+
 namespace task
 {
     enum ExecutorState { IDEL = 0, BUSY };
@@ -19,8 +21,8 @@ namespace task
         bool                        stop_flag_;
         
         Logger::s_ptr               log_;
+        
         /////////////////////////////////////////pirvate Function
-
         void Run();
     
     public:
@@ -31,7 +33,7 @@ namespace task
         Executor(Logger::s_ptr log , int id);
         ~Executor();
 
-        const ExecutorState GetState() const {return currentState;}
+        ExecutorState GetState() const {return currentState;}
 
         bool assignTask(Task task);
     };

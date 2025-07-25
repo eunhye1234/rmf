@@ -1,0 +1,7 @@
+[2025-07-25 11:01:24] [INFO] [task::Executor::Executor(Log::Logger::s_ptr, int)] Executor ID : 0 initialize done
+[2025-07-25 11:01:24] [INFO] [task::Executor::Executor(Log::Logger::s_ptr, int)] Executor ID : 1 initialize done
+[2025-07-25 11:01:24] [INFO] [task::Executor::Executor(Log::Logger::s_ptr, int)] Executor ID : 2 initialize done
+[2025-07-25 11:01:24] [INFO] [task::Executor::Executor(Log::Logger::s_ptr, int)] Executor ID : 3 initialize done
+[2025-07-25 11:01:24] [INFO] [task::Executor::Executor(Log::Logger::s_ptr, int)] Executor ID : 4 initialize done
+[2025-07-25 11:01:24] [INFO] [task::Dispatcher::Dispatcher(int, Log::Logger::s_ptr)] Dispatcher initialize done
+[2025-07-25 11:01:24] [INFO] [bool core::Core::Initialize()] Core Initialize Done

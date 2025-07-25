@@ -150,10 +150,12 @@ bool Logger::Log(
 	Msg.funcName = loc.function_name();
 	Msg.timestamp = getTimestamp();
 
-	lock_guard<mutex> lock(loggerlock_);
+	{
+		lock_guard<mutex> lock(loggerlock_);
 
-	LogQueue_.push(Msg);
-	queueCondVar_.notify_one();
-
+		LogQueue_.push(Msg);
+		queueCondVar_.notify_one();
+	}
+	
 	return true;
 }

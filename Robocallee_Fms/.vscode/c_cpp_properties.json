@@ -9,7 +9,11 @@
                 "${workspaceFolder}/Request/include",
                 "${workspaceFolder}/Task/include",
                 "${workspaceFolder}/Traffic/include",
-                "${workspaceFolder}/Utile/Logger/include"
+                "${workspaceFolder}/Interface/include",
+                "${workspaceFolder}/Utile/Logger/include",
+                "/opt/ros/jazzy/include",
+                "/opt/ros/jazzy/include/rclcpp"
+                
             ],
             "defines": [],
             "compilerPath": "/usr/bin/gcc",

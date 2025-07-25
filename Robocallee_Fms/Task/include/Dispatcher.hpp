@@ -5,6 +5,8 @@
 #include "Integrated.hpp"
 #include "Executor.hpp"
 
+using namespace Integrated;
+
 namespace task
 {
     class Dispatcher
@@ -30,6 +32,8 @@ namespace task
         Dispatcher(const int ExecutorCount, Logger::s_ptr log);
         ~Dispatcher();
 
+
         bool Enqueue(Task task);
     };
+
 };

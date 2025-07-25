@@ -63,6 +63,8 @@ void Dispatcher::Run()
                 {
                     Task_queue_.pop();
                     Executors_[i]->assignTask(task);
+                    
+                    break;
                 }
             }
 
