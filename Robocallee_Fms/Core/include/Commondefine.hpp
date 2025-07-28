@@ -13,3 +13,11 @@ namespace Commondefine
     enum RobotArmStep {RobotArmStep_num = 0};
 };
 
+
+typedef struct Request
+{
+    std::string                 requester;
+    shoesproperty               shoes_property;
+    pose2d                      dest2
+
+}Request; 

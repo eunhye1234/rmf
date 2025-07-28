@@ -12,6 +12,7 @@
                 "${workspaceFolder}/Interface/include",
                 "${workspaceFolder}/../Utile/Logger/include",
                 "${workspaceFolder}/../Utile/Common/include",
+		        "${workspaceFoler}/Request/include",
                 "/opt/ros/jazzy/include",
                 "/opt/ros/jazzy/include/rclcpp"
                 

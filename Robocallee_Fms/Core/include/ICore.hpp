@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Integrated.hpp"
+// #include "Integrated.hpp"
 #include "Commondefine.hpp"
 
 namespace core

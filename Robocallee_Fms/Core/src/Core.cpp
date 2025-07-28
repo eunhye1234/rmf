@@ -62,3 +62,47 @@ bool Core::SetRobotArmNextStep(Commondefine::RobotArmStep step)
 
     return true;
 }
+
+//////////
+void Core::HandleRequestService(const std::shared_ptr<ReqServiceType::Request>& request,
+                                  std::shared_ptr<ReqServiceType::Response>& response)
+{
+    RobotRequest r;
+    r.requester = request->requester;
+    r.shoe_model.size = request->size;
+    r.shoe_model.model = request->model;
+    r.shoe_model.color = request->color;
+    r.dest2.x = request->x;
+    r.dest2.y = request->y;
+
+    log_->Log(Log::LogLevel::INFO, "Request received: " + r.shoe_model.model);
+
+    if (request_manager_)
+    {
+        request_manager_->EnqueueRequest(r);
+        reponse->accepted = true;
+        // addTask(best_pinky_selector());
+    }
+    else
+    {
+        response->accepted = false;
+    }
+}
+                    
+void Core::HandleDoneService(const std::shared_ptr<DoneServiceType::Request>& request,
+                                  std::shared_ptr<DoneServiceType::Response>& response)
+{
+    log_->Log(Log::LogLevel::INFO, "Done received from: ", request->requester);
+
+    if (request->requester == "customer")
+    {
+        // taskinfo->robot_state = IDLE;
+        // addTask(best_pinky_selector());
+        response->accepted = true;
+    }
+    else if (request->requester == "employee")
+    {
+        // addTask(MoveTo_dest2(dest2, pinky_id));
+        response->accepted = true;
+    }
+}

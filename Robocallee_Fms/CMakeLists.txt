@@ -21,9 +21,9 @@ set(REQUEST_INCLUDE_DIR     "${CMAKE_SOURCE_DIR}/Request/include")
 set(INTERFACE_INCLUDE_DIR   "${CMAKE_SOURCE_DIR}/Interface/include")
 set(TASK_INCLUDE_DIR        "${CMAKE_SOURCE_DIR}/Task/include")
 set(TRAFFIC_INCLUDE_DIR     "${CMAKE_SOURCE_DIR}/Traffic/include")
-set(LOGGER_INCLUDE_DIR      "${CMAKE_SOURCE_DIR}/../Utile/Logger/include")
-set(UTILE_INCLUDE_DIR       "${CMAKE_SOURCE_DIR}/../Utile/include")
-set(COMMON_INCLUDE_DIR      "${CMAKE_SOURCE_DIR}/../Utile/Common/include")
+# set(LOGGER_INCLUDE_DIR      "${CMAKE_SOURCE_DIR}/../Utile/Logger/include")
+# set(UTILE_INCLUDE_DIR       "${CMAKE_SOURCE_DIR}/../Utile/include")
+# set(COMMON_INCLUDE_DIR      "${CMAKE_SOURCE_DIR}/../Utile/Common/include")
 
 find_package(ament_cmake REQUIRED)  # ament 빌드시스템 사용
 find_package(rclcpp REQUIRED)       # ROS2 C++ 클라이언트 라이브러리
@@ -45,13 +45,14 @@ include_directories(
 
 add_executable(robocallee_fms
     main.cpp
-    ../Utile/Logger/src/Logger.cpp
+    # ../Utile/Logger/src/Logger.cpp
     Core/src/Core.cpp
     Task/src/Dispatcher.cpp
     Task/src/Executor.cpp
     Interface/src/RosInterface.cpp
     Adapters/src/AmrAdapter.cpp
     Adapters/src/RobotArmAdapter.cpp
+    Request/src/RequestManager.cpp      #추가
 )
 
 #라이브러리 경로 등록

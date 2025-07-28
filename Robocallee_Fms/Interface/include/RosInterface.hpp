@@ -1,9 +1,9 @@
 #pragma once
 
 #include "ICore.hpp"
-#include "Integrated.hpp"
+// #include "Integrated.hpp"
 
-#//Ros 관련
+//Ros 관련
 #include "rclcpp/rclcpp.hpp"
 #include "std_msgs/msg/string.hpp"
 
@@ -24,5 +24,8 @@ namespace interface
         ~RosInterface();
 
         bool Initialize(Integrated::w_ptr<core::ICore> Icore);
+
+        void CreateRequestService();       ////////////
+        void CreateDoneService();
     };
 };

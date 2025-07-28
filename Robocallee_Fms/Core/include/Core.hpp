@@ -4,11 +4,12 @@
 #include <type_traits>
 
 #include "ICore.hpp"
-#include "Dispatcher.hpp"
+#include "../Task/include/Dispatcher.hpp"
 #include "Commondefine.hpp"
 #include "AmrAdapter.hpp"
 #include "RobotArmAdapter.hpp"
 #include "RosInterface.hpp"
+#include "RequestManager.hpp"
 
 using namespace Integrated;
 
@@ -21,6 +22,7 @@ namespace core
         Logger::s_ptr                       log_;
         Adapter::AmrAdapter::u_ptr          pAmrAdapter_;
         Adapter::RobotArmAdapter::u_ptr     pRobotArmAdapter_;
+        Manager::RequestManager::u_ptr      pRequestManager_;     ///////////////////////////
         std::mutex                          assignmtx_;
         interface::RosInterface::w_ptr      Interface_;
     
@@ -28,6 +30,8 @@ namespace core
         using s_ptr = std::shared_ptr<Core>;
         using u_ptr = std::unique_ptr<Core>;
         using w_ptr = std::weak_ptr<Core>;
+        using ReqServiceType = robocallee_fms::srv::ProcessRequest;    ///////////////
+        using DoneServiceType = robocallee_fms::srv::ProcessDone;
     
 
         Core(Logger::s_ptr log , interface::RosInterface::s_ptr Interface_);
@@ -41,6 +45,14 @@ namespace core
         bool SetAmrNextStep(Commondefine::AmrStep step) override;
 
         bool SetRobotArmNextStep(Commondefine::RobotArmStep step) override;
+        
+        ////////
+        void HandleRequestService(const std::shared_ptr<ReqServiceType::Request>& request,
+                                  std::shared_ptr<ReqServiceType::Response>& response);
+        
+        void HandleDoneService(const std::shared_ptr<DoneServiceType::Request>& request,
+                                  std::shared_ptr<DoneServiceType::Response>& response);
+
         
     };
 
