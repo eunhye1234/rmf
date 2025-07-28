@@ -1,4 +1,5 @@
 #include "Integrated.hpp"
+#include "Commondefine.hpp"
 #include "Core.hpp"
 
 #include "RosInterface.hpp"
@@ -6,6 +7,7 @@
 #include <iostream>
 
 using namespace Integrated;
+using namespace Commondefine;
 
 int main(int argc, char * argv[])
 {
@@ -18,7 +20,7 @@ int main(int argc, char * argv[])
     const core::Core::s_ptr pCore = make_sptr<core::Core>(log_, pInterface);
 
     pCore->Initialize();
-    pInterface->Initialize(pCore);
+    pInterface->Initialize(pCore,pcore->GetMap);
 
     rclcpp::executors::MultiThreadedExecutor executor;
     executor.add_node(pInterface);

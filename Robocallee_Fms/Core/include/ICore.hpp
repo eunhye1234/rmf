@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Integrated.hpp"
+#include "Commondefine.hpp"
 
 namespace core
 {
@@ -12,9 +13,10 @@ namespace core
         ICore() = default; 
         virtual ~ICore() = default;
 
-        virtual bool SetAmrNextStep(Integrated::AmrStep step) = 0;
+        virtual bool SetAmrNextStep(Commondefine::AmrStep step) = 0;
 
-        virtual bool SetRobotArmNextStep(Integrated::RobotArmStep step) = 0;
+        virtual bool SetRobotArmNextStep(Commondefine::RobotArmStep step) = 0;
+        
     };
 };
 

@@ -5,6 +5,7 @@
 
 #include "ICore.hpp"
 #include "Dispatcher.hpp"
+#include "Commondefine.hpp"
 #include "AmrAdapter.hpp"
 #include "RobotArmAdapter.hpp"
 #include "RosInterface.hpp"
@@ -37,9 +38,10 @@ namespace core
 
         bool Initialize();
 
-        bool SetAmrNextStep(Integrated::AmrStep step) override;
+        bool SetAmrNextStep(Commondefine::AmrStep step) override;
 
-        bool SetRobotArmNextStep(Integrated::RobotArmStep step) override;
+        bool SetRobotArmNextStep(Commondefine::RobotArmStep step) override;
+        
     };
 
     template<typename F, typename... Args>

@@ -15,5 +15,7 @@ bool RosInterface::Initialize(Integrated::w_ptr<core::ICore> Icore)
 {
     Icore_ = Icore;
     
+
+
     return true;
 }

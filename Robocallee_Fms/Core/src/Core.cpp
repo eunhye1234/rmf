@@ -1,8 +1,9 @@
 #include "Core.hpp"
 
-
 using namespace core;
 using namespace task;
+using namespace Integrated;
+using namespace Commondefine;
 using namespace Adapter;
 using namespace std;
 
@@ -34,7 +35,7 @@ bool Core::Initialize()
 }
 
 
-bool Core::SetAmrNextStep(Integrated::AmrStep step)
+bool Core::SetAmrNextStep(Commondefine::AmrStep step)
 {
     switch (step)
     {
@@ -48,7 +49,7 @@ bool Core::SetAmrNextStep(Integrated::AmrStep step)
     return true;
 }
 
-bool Core::SetRobotArmNextStep(Integrated::RobotArmStep step)
+bool Core::SetRobotArmNextStep(Commondefine::RobotArmStep step)
 {
     switch (step)
     {
