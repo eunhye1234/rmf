@@ -1,0 +1,26 @@
+{
+    "configurations": [
+        {
+            "name": "Linux",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "${workspaceFolder}/../Utile/Logger/include",
+                "${workspaceFolder}/../Utile/Common/include",
+                "${workspaceFolder}/Core/include",
+                "${workspaceFolder}/ImageProcessing/Calibration/include",
+                "${workspaceFolder}/ImageProcessing/Detectors/include",
+                "${workspaceFolder}/Interface/include",
+                "${workspaceFolder}/RobotArm/include",
+                "${workspaceFolder}/lib/opencv/include",
+                "/opt/ros/jazzy/include",
+                "/opt/ros/jazzy/include/rclcpp"
+            ],
+            "defines": [],
+            "compilerPath": "/usr/bin/gcc",
+            "cStandard": "c17",
+            "cppStandard": "gnu++17",
+            "intelliSenseMode": "linux-gcc-x64"
+        }
+    ],
+    "version": 4
+}

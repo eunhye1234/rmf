@@ -1,0 +1,5 @@
+source;share/robocallee_pickbot/local_setup.bash
+source;share/robocallee_pickbot/local_setup.dsv
+source;share/robocallee_pickbot/local_setup.ps1
+source;share/robocallee_pickbot/local_setup.sh
+source;share/robocallee_pickbot/local_setup.zsh

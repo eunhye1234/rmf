@@ -20,7 +20,7 @@ int main(int argc, char * argv[])
     const core::Core::s_ptr pCore = make_sptr<core::Core>(log_, pInterface);
 
     pCore->Initialize();
-    pInterface->Initialize(pCore,pcore->GetMap);
+    pInterface->Initialize(pCore);
 
     rclcpp::executors::MultiThreadedExecutor executor;
     executor.add_node(pInterface);
