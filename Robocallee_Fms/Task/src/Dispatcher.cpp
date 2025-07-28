@@ -5,7 +5,8 @@ using namespace task;
 Dispatcher::Dispatcher(const int num_Executors , Logger::s_ptr log)
     :num_Executors_(num_Executors) , log_(log) , isRunning_(true)
 {
-    for(size_t i = 0; i < num_Executors_; ++i)
+    size_t size = num_Executors_;
+    for(size_t i = 0; i < size; ++i)
     {
         Executors_.emplace_back(std::make_unique<Executor>(log_, i));
     }

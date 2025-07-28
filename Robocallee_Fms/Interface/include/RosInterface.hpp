@@ -1,10 +1,9 @@
-namespace core { class Core; }
-
 #pragma once
 
+#include "ICore.hpp"
 #include "Integrated.hpp"
-#include "Interface.hpp"
 
+#//Ros 관련
 #include "rclcpp/rclcpp.hpp"
 #include "std_msgs/msg/string.hpp"
 
@@ -14,7 +13,8 @@ namespace interface
     {
     private:
         Logger::s_ptr                           log_;
-        Integrated::w_ptr<core::Core>           core_;
+        Integrated::w_ptr<core::ICore>          Icore_;
+        
     public:
         using s_ptr = std::shared_ptr<RosInterface>;
         using u_ptr = std::shared_ptr<RosInterface>;
@@ -23,6 +23,6 @@ namespace interface
         RosInterface(Logger::s_ptr log);
         ~RosInterface();
 
-        bool Initialize(Integrated::w_ptr<core::Core> Core);
+        bool Initialize(Integrated::w_ptr<core::ICore> Icore);
     };
 };

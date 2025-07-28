@@ -1,9 +1,9 @@
 #include "Core.hpp"
-#include "Interface.hpp"
-#include "RosInterface.hpp"
+
 
 using namespace core;
 using namespace task;
+using namespace Adapter;
 using namespace std;
 
 Core::Core(Logger::s_ptr log, interface::RosInterface::s_ptr Interface)
@@ -23,7 +23,41 @@ bool Core::Initialize()
     auto self = shared_from_this();
 
     pdispatcher_ = make_uptr<Dispatcher>(_MAX_EXECUTOR_NUM_, log_);
-    
+
+    pAmrAdapter_ = make_uptr<AmrAdapter>(self, log_);
+
+    pRobotArmAdapter_ = make_uptr<RobotArmAdapter>(self, log_);
+
     log_->Log(Log::LogLevel::INFO,"Core Initialize Done");
+    
+    return true;
+}
+
+
+bool Core::SetAmrNextStep(Integrated::AmrStep step)
+{
+    switch (step)
+    {
+    case AmrStep_num:
+        break;
+    
+    default:
+        break;
+    }
+
+    return true;
+}
+
+bool Core::SetRobotArmNextStep(Integrated::RobotArmStep step)
+{
+    switch (step)
+    {
+    case RobotArmStep_num:
+        break;
+    
+    default:
+        break;
+    }
+
     return true;
 }

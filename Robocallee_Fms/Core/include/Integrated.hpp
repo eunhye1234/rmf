@@ -7,6 +7,7 @@
 #include <mutex>
 #include <chrono>
 #include <future>
+#include <map>
 #include <condition_variable>
 
 #include "Logger.hpp"
@@ -17,6 +18,8 @@ namespace Integrated
     #define _LOG_FILE_DIR_ "../../Log_file"
 
     #define _ROS_NODE_NAME_ std::string("robocallee_fms")
+
+    #define _MAX_EXECUTOR_NUM_ 5
 
     template<typename T>
     using vec = std::vector<T>;
@@ -43,4 +46,8 @@ namespace Integrated
     {
         return std::make_unique<T>(std::forward<Args>(args)...);
     }
+
+    enum AmrStep {AmrStep_num};
+
+    enum RobotArmStep {RobotArmStep_num};
 };

@@ -3,23 +3,26 @@
 #include <future>
 #include <type_traits>
 
+#include "ICore.hpp"
 #include "Dispatcher.hpp"
+#include "AmrAdapter.hpp"
+#include "RobotArmAdapter.hpp"
 #include "RosInterface.hpp"
 
 using namespace Integrated;
 
-#define _MAX_EXECUTOR_NUM_ 5
-
-
 namespace core
 {
-    class Core : public std::enable_shared_from_this<Core>
+    class Core : public std::enable_shared_from_this<Core> , public ICore
     {
     private:
         task::Dispatcher::u_ptr             pdispatcher_;
         Logger::s_ptr                       log_;
+        Adapter::AmrAdapter::u_ptr          pAmrAdapter_;
+        Adapter::RobotArmAdapter::u_ptr     pRobotArmAdapter_;
         std::mutex                          assignmtx_;
-        interface::RosInterface::s_ptr      Interface_;
+        interface::RosInterface::w_ptr      Interface_;
+    
     public:
         using s_ptr = std::shared_ptr<Core>;
         using u_ptr = std::unique_ptr<Core>;
@@ -33,6 +36,10 @@ namespace core
         auto assignTask(F&& f, Args&&... args)-> std::future<typename std::invoke_result<F, Args...>::type>;
 
         bool Initialize();
+
+        bool SetAmrNextStep(Integrated::AmrStep step) override;
+
+        bool SetRobotArmNextStep(Integrated::RobotArmStep step) override;
     };
 
     template<typename F, typename... Args>

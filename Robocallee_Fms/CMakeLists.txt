@@ -48,6 +48,8 @@ add_executable(robocallee_fms
     Task/src/Dispatcher.cpp
     Task/src/Executor.cpp
     Interface/src/RosInterface.cpp
+    Adapters/src/AmrAdapter.cpp
+    Adapters/src/RobotArmAdapter.cpp
 )
 
 #라이브러리 경로 등록

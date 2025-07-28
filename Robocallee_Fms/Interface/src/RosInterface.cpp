@@ -11,9 +11,9 @@ RosInterface::RosInterface(Logger::s_ptr log)
 
 RosInterface::~RosInterface(){}
 
-bool RosInterface::Initialize(Integrated::w_ptr<core::Core> Core)
+bool RosInterface::Initialize(Integrated::w_ptr<core::ICore> Icore)
 {
-    core_ = Core;
-
+    Icore_ = Icore;
+    
     return true;
 }
