@@ -1,0 +1,33 @@
+# 캘리브레이션에 사용한 이미지 크기 
+image_width: 640
+image_height: 640
+
+# 카메라 이름
+camera_name: my_camera
+
+# 카메라 내부 파라미터 행렬 (Intrinsic Matrix, K) - 사용자의 값으로 채움
+camera_matrix:
+  rows: 3
+  cols: 3
+  data: [749.04619185, 0.0, 301.91118398, 0.0, 749.2763205, 324.9294889, 0.0, 0.0, 1.0]
+
+# 왜곡 모델 이름
+distortion_model: plumb_bob
+
+# 왜곡 계수 (Distortion Coefficients, D) - 사용자의 값으로 채움
+distortion_coefficients:
+  rows: 1
+  cols: 5
+  data: [0.160446384, -1.13984452, -0.00191316889, 0.00135314278, 2.51874695]
+
+# rectification_matrix: 단일 카메라이므로 camera_matrix와 동일한 값
+rectification_matrix:
+  rows: 3
+  cols: 3
+  data: [749.04, 0.0, 301.91, 0.0, 749.27, 324.92, 0.0, 0.0, 1.0]
+
+# projection_matrix: camera_matrix의 3x3 오른쪽에 0으로 채워진 3x1 열을 추가한 3x4 행렬
+projection_matrix:
+  rows: 3
+  cols: 4
+  data: [749.04, 0.0, 301.91, 0.0, 0.0, 749.27, 324.92, 0.0, 0.0, 0.0, 1.0, 0.0]
