@@ -29,6 +29,10 @@ from nav2_msgs.action import NavigateToPose
 import tf2_ros
 from tf2_geometry_msgs import do_transform_point
 
+import camera_info_manager as cim
+from ament_index_python.packages import get_package_share_directory
+import os
+
 try:
     from ultralytics import YOLO
 except Exception as e:
@@ -42,17 +46,20 @@ CAMERA_FRAME = "camera_link"
 BASE_FRAME = "base_link"
 MAP_FRAME = "map"
 LASER_FRAME = "base_link"
-F = 763.5  # 미리 계산한 유사 초점 거리(px)
+# F = 763.5  # 미리 계산한 유사 초점 거리(px)
 REAL_WIDTHS = {0: 0.45, "generic_object": 0.112}
 Kp_ang = 0.005
 Kp_lin = 0.002
 MAX_LIN_SPEED = 0.30
 MAX_ANG_SPEED = 0.50
 WINDOW_NAME = "Vision Debug"
+CHAIR_CLASS_ID = 56
+HUMAN_CLASS_ID = 0
 
 class VisionNavNode(Node):
     def __init__(self):
         super().__init__("vision_nav_node")
+
         self.cmd_pub = self.create_publisher(Twist, "/cmd_vel", 10)
         self.scan_sub = self.create_subscription(LaserScan, "/scan", self.scan_cb, 10)
         self.scan_pub = self.create_publisher(LaserScan, "/new_scan", 10)
@@ -77,11 +84,26 @@ class VisionNavNode(Node):
         self.last_person_goal: Optional[PoseStamped] = None
         self.latest_scan: Optional[LaserScan] = None
 
+        pkg_share_dir = get_package_share_directory('vision_following')
+        camera_info_url = 'file://' + os.path.join(pkg_share_dir, 'config', 'camera_calibration.yaml')
+        self.cam_info_manager = cim.CameraInfoManager(self, 'my_camera', camera_info_url)
+        self.cam_info_manager.loadCameraInfo()
+        
+        # NEW: 카메라 정보에서 파라미터 직접 로드
+        cam_info = self.cam_info_manager.getCameraInfo()
+        self.camera_matrix = np.array(cam_info.k).reshape((3, 3))
+        self.dist_coeffs = np.array(cam_info.d)
+        
+        self.fx = self.camera_matrix[0, 0]
+        self.fy = self.camera_matrix[1, 1]
+        self.cx = self.camera_matrix[0, 2]
+        self.cy = self.camera_matrix[1, 2]
+
         # Camera intrinsics (fixed)
-        self.fx: float = F
-        self.fy: float = F
-        self.cx: Optional[float] = None
-        self.cy: Optional[float] = None
+        # self.fx: float = F
+        # self.fy: float = F
+        # self.cx: Optional[float] = None
+        # self.cy: Optional[float] = None
 
         # Mutex
         self.vel_lock = threading.Lock()
@@ -97,14 +119,17 @@ class VisionNavNode(Node):
         self.latest_scan = msg
 
     def loop_once(self):
-        img = self._recv_image()
-        if img is None:
+        raw_img = self._recv_image()
+        if raw_img is None:
             self._check_nav_result_nonblocking()
             return
+        
+        # 모든 계산은 왜곡이 보정된 이미지를 기준으로 수행합니다.
+        img = cv2.undistort(raw_img, self.camera_matrix, self.dist_coeffs)
 
-        if self.cx is None or self.cy is None:
-            self.cx = img.shape[1] / 2.0
-            self.cy = img.shape[0] / 2.0
+        # if self.cx is None or self.cy is None:
+        #     self.cx = img.shape[1] / 2.0
+        #     self.cy = img.shape[0] / 2.0
 
         results = self.model.predict(source=img, verbose=False, imgsz=img.shape[:2][::-1])
         det = results[0]
@@ -118,33 +143,45 @@ class VisionNavNode(Node):
             u_c = (x1 + x2)/2.0
             v_c = (y1 + y2)/2.0
             w_px = x2 - x1
-            if cls_id == 0:
+            if cls_id == HUMAN_CLASS_ID:
                 self.get_logger().info("-----------------PERSON")
                 person = (u_c, v_c, w_px)
             else:
                 objects.append((u_c, v_c, w_px, cls_id))
+
+        scan_to_publish = self.latest_scan
 
         if person is not None:
             if self.mode == "NAV2":
                 self._cancel_nav_goal_if_active()
             self.mode = "FOLLOW"
             u_c, v_c, w_px = person
-            real_w = REAL_WIDTHS.get(0, 0.112)
+            # real_w = REAL_WIDTHS.get(0, 0.112)
+            real_w = REAL_WIDTHS.get(0, 0.097)
             Z = self._depth_from_width(w_px, real_w)
             cam_xyz = self._pixel_to_cam(u_c, v_c, Z)
             self._publish_pid_cmd(u_c, v_c)
             self._update_last_person_goal(cam_xyz)
         else:
-            self._stop_cmd()
+            chairs = [obj for obj in objects if obj[3] == CHAIR_CLASS_ID]
+            # self._stop_cmd()
             # if objects and self.last_person_goal is not None:
-            if objects:
-                self.get_logger().info("-----------------OBSTACLE")
-                self._inject_virtual_obstacles(objects)
+            # if objects:
+            if chairs:
+            # if cls_id == CHAIR_CLASS_ID:
+                self.get_logger().info("-----------------CHAIR")
+                scan_to_publish = self._inject_virtual_obstacles(chairs)
                 if self.mode != "NAV2":
                     self._send_nav_goal(self.last_person_goal)
                     self.mode = "NAV2"
+            
+            else:
+                self._stop_cmd()
 
-        self._check_nav_result_nonblocking()
+        if scan_to_publish:
+            self.scan_pub.publish(scan_to_publish)
+
+        # self._check_nav_result_nonblocking()
         try:
             annotated = det.plot()
             cv2.imshow(WINDOW_NAME, annotated)
@@ -262,8 +299,20 @@ class VisionNavNode(Node):
         scan.ranges = list(self.latest_scan.ranges)
         scan.intensities = list(self.latest_scan.intensities)
 
+        # self.get_logger().info("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+
+        # self.get_logger().info(f'angle_min {scan.angle_min}')
+        # self.get_logger().info(f'angle_max {scan.angle_max}')
+        # self.get_logger().info(f'angle_increment {scan.angle_increment}')
+        # self.get_logger().info(f'range_min {scan.range_min}')
+        # self.get_logger().info(f'range_max {scan.range_max}')
+        # # self.get_logger().info(f'angle_min {scan.ranges})
+        # # self.get_logger().info(f'angle_min ')
+        # self.get_logger().info("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@2222")
+
         for u_c, v_c, w_px, cls_id in objects:
-            real_w = REAL_WIDTHS.get(cls_id, 0.112)
+            # real_w = REAL_WIDTHS.get(cls_id, 0.112)
+            real_w = REAL_WIDTHS.get(cls_id, 0.097)
             Z = self._depth_from_width(w_px, real_w)
             # angle 계산
             angle = math.atan2(u_c - self.cx, self.fx)
@@ -287,7 +336,8 @@ class VisionNavNode(Node):
         # print("run3")
         # print("Original: ", self.latest_scan.ranges[index-n:index+n])
         # print("Modified: ", scan.ranges[index-n:index+n])
-        self.scan_pub.publish(scan)
+        # self.scan_pub.publish(scan)
+        return scan
 
 
 def main(args=None):
