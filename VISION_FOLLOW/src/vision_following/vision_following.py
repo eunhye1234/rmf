@@ -32,6 +32,7 @@ from tf2_geometry_msgs import do_transform_point
 import camera_info_manager as cim
 from ament_index_python.packages import get_package_share_directory
 import os
+import rclpy.duration
 
 try:
     from ultralytics import YOLO
@@ -55,6 +56,8 @@ MAX_ANG_SPEED = 0.50
 WINDOW_NAME = "Vision Debug"
 CHAIR_CLASS_ID = 56
 HUMAN_CLASS_ID = 0
+BENCH_CLASS_ID = 13
+COUCH_CLASS_ID = 58
 
 class VisionNavNode(Node):
     def __init__(self):
@@ -108,6 +111,10 @@ class VisionNavNode(Node):
         # Mutex
         self.vel_lock = threading.Lock()
 
+        self.obstacle_cache = []        # (u_c, v_c, w_px, cls_id, timestamp)를 저장할 리스트
+        self.persistence_duration = rclpy.duration.Duration(seconds=3.0)    #장애물 유지 시간 3초
+        self.obstacle_ids  = (CHAIR_CLASS_ID, COUCH_CLASS_ID, BENCH_CLASS_ID)
+ 
         try:
             cv2.namedWindow(WINDOW_NAME, cv2.WINDOW_NORMAL)
         except Exception:
@@ -127,16 +134,14 @@ class VisionNavNode(Node):
         # 모든 계산은 왜곡이 보정된 이미지를 기준으로 수행합니다.
         img = cv2.undistort(raw_img, self.camera_matrix, self.dist_coeffs)
 
-        # if self.cx is None or self.cy is None:
-        #     self.cx = img.shape[1] / 2.0
-        #     self.cy = img.shape[0] / 2.0
+        now = self.get_clock().now()
 
         results = self.model.predict(source=img, verbose=False, imgsz=img.shape[:2][::-1])
         det = results[0]
         boxes = det.boxes
 
         person = None
-        objects: List[Tuple[float, float, float, int]] = []
+
         for b in boxes:
             cls_id = int(b.cls[0])
             x1, y1, x2, y2 = b.xyxy[0].tolist()
@@ -144,13 +149,14 @@ class VisionNavNode(Node):
             v_c = (y1 + y2)/2.0
             w_px = x2 - x1
             if cls_id == HUMAN_CLASS_ID:
-                self.get_logger().info("-----------------PERSON")
+                # self.get_logger().info("-----------------PERSON")
                 person = (u_c, v_c, w_px)
             else:
-                objects.append((u_c, v_c, w_px, cls_id))
+                self.obstacle_cache.append((u_c, v_c, w_px, cls_id, now))
 
         scan_to_publish = self.latest_scan
 
+        #사람 감지
         if person is not None:
             if self.mode == "NAV2":
                 self._cancel_nav_goal_if_active()
@@ -160,10 +166,11 @@ class VisionNavNode(Node):
             real_w = REAL_WIDTHS.get(0, 0.097)
             Z = self._depth_from_width(w_px, real_w)
             cam_xyz = self._pixel_to_cam(u_c, v_c, Z)
-            self._publish_pid_cmd(u_c, v_c)
-            self._update_last_person_goal(cam_xyz)
+            # self._publish_pid_cmd(u_c, v_c)
+            # self._update_last_person_goal(cam_xyz)
+        #사람 없음
         else:
-            chairs = [obj for obj in objects if obj[3] == CHAIR_CLASS_ID]
+            chairs = [obj for obj in self.obstacle_cache if obj[3] in self.obstacle_ids]
             # self._stop_cmd()
             # if objects and self.last_person_goal is not None:
             # if objects:
@@ -172,7 +179,7 @@ class VisionNavNode(Node):
                 self.get_logger().info("-----------------CHAIR")
                 scan_to_publish = self._inject_virtual_obstacles(chairs)
                 if self.mode != "NAV2":
-                    self._send_nav_goal(self.last_person_goal)
+                    # self._send_nav_goal(self.last_person_goal)
                     self.mode = "NAV2"
             
             else:
@@ -180,6 +187,13 @@ class VisionNavNode(Node):
 
         if scan_to_publish:
             self.scan_pub.publish(scan_to_publish)
+
+        # 2.캐시에서 오래된 장애물 제거(Pruning)
+        #리스트를 뒤에서부터 순회하며 삭제해야 인덱스 문제가 없음
+        for i in range(len(self.obstacle_cache) -1, -1, -1):
+            *_, timestamp = self.obstacle_cache[i]
+            if (now - timestamp) > self.persistence_duration:
+                self.obstacle_cache.pop(i)
 
         # self._check_nav_result_nonblocking()
         try:
@@ -282,7 +296,7 @@ class VisionNavNode(Node):
     def _check_nav_result_nonblocking(self):
         pass  # callback handles status
 
-    def _inject_virtual_obstacles(self, objects: List[Tuple[float, float, float, int, float]]):
+    def _inject_virtual_obstacles(self, cached_object: List[Tuple[float, float, float, int, rclpy.time.Time]]):
         if self.latest_scan is None:
             return
         
@@ -310,7 +324,7 @@ class VisionNavNode(Node):
         # # self.get_logger().info(f'angle_min ')
         # self.get_logger().info("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@2222")
 
-        for u_c, v_c, w_px, cls_id in objects:
+        for u_c, v_c, w_px, cls_id, _ in cached_object:
             # real_w = REAL_WIDTHS.get(cls_id, 0.112)
             real_w = REAL_WIDTHS.get(cls_id, 0.097)
             Z = self._depth_from_width(w_px, real_w)
